@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "esModuleInterop": true,
+    "removeComments": true,
+    "target": "es6",
+    "strict": true,
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strictNullChecks": true,
+    "sourceMap": true,
+    "outDir": "build",
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    }
+  },
+  "include": ["src", "tests/**/*.ts"],
+  "exclude": ["node_modules", "build", ".vscode"]
+}
