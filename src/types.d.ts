@@ -1,5 +1,5 @@
 interface Message {
-  text: string;
+  input: string;
   date: string;
   sender: string;
 }
