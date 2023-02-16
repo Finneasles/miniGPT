@@ -2,6 +2,8 @@ import * as readline from "readline";
 import "dotenv/config";
 import fs from "fs";
 import { generateText } from "./utils";
+import { terminal } from "terminal-kit";
+
 
 class ConsoleApp {
   private conversations: any[] = [];
@@ -86,65 +88,93 @@ class ConsoleApp {
 
   private async startChat() {
     console.clear();
-    console.log(`Active conversation: ${this.activeConversation!.name}`);
+    terminal(`Active conversation: [${this.activeConversation!.name}]\n`);
     this.activeConversation?.messages.map((e: Message) => {
       const now = new Date(e.date);
       var dateString =
-        // now.getUTCFullYear().toString().substring(2) +
-        //   ":" +
-        //   ("0" +(now.getUTCMonth() + 1).toString()).slice(-2) +
-        //   ":" +
-        //   now.getUTCDate() +
-        //   "-" +
         now.getUTCHours() +
         ":" +
         ("0" + now.getUTCMinutes().toString()).slice(-2);
 
-      console.log("[" + dateString + "] Me: " + e.text);
+        terminal("\n[" + dateString + "] Me: " + e.input);
     });
-    const input = await await this.getInput("> Enter: ");
-    if (input === "convo") {
-      console.clear();
-      console.log("Please select a conversation:");
-      this.conversations.forEach((conversation, index) => {
-        console.log(`${index + 1}. ${conversation.name}`);
-      });
-      console.log(
-        `${this.conversations.length + 1}. Create a new conversation`
-      );
-      const selectedIndex = await this.getInput("Enter the number: ");
-      const index = parseInt(selectedIndex, 10) - 1;
-      if (index >= 0 && index < this.conversations.length) {
-        this.activeConversation = this.conversations[index];
-      } else if (index === this.conversations.length) {
-        console.clear();
-        const name = await this.getInput("Enter conversation name: ");
-        this.activeConversation = { name, messages: [] };
-        this.conversations.push(this.activeConversation);
-      } else {
-        console.log("Invalid conversation number");
-      }
-      this.startChat();
-    } else {
+    terminal.magenta("\nEnter: ");
+    
+    terminal.inputField((error, input) => {
+
       const message: Message = {
         sender: "user",
-        text: input,
+        input: input || "",
         date: new Date().toUTCString(),
       };
-      this.activeConversation!.messages.push(message);
-      this.saveHistory();
-      console.log(`You: ${input}`);
-      // TODO: Interact with GPT-3 here and display the response
-      const request: OpenAiRequest = {
-        model: "text-davinci-002",
-        prompt: "What is the meaning of life?",
-        max_tokens: 100,
-        temperature: 0.5,
-      };
-      const response = await generateText(request);
-      console.log(response);
-      this.startChat();
-    }
+      
+      if (input === "/convo" || "/cv" || "/convos" || "/conversations") {
+        terminal.clear();
+        terminal("\nPlease select a conversation:");
+
+        // this.conversations.forEach((conversation, index) => {
+        //   terminal(`\n${index + 1}. ${conversation.name}`);
+        // });
+        terminal(`\n${this.conversations.length + 1}. Create a new conversation`);
+        terminal.singleColumnMenu(this.conversations, (res) => {
+
+        });
+
+      } else {
+        terminal("\nSending...");
+
+
+
+        if (message.input !== "") {
+          this.activeConversation!.messages.push(message);
+          this.saveHistory();
+        }
+        this.startChat();
+      }
+    });
+    // const input = await this.getInput("> Enter: ");
+    // if (input === "convo") {
+    //   console.clear();
+    //   console.log("Please select a conversation:");
+    //   this.conversations.forEach((conversation, index) => {
+    //     console.log(`${index + 1}. ${conversation.name}`);
+    //   });
+    //   console.log(
+    //     `${this.conversations.length + 1}. Create a new conversation`
+    //   );
+    //   const selectedIndex = await this.getInput("Enter the number: ");
+    //   const index = parseInt(selectedIndex, 10) - 1;
+    //   if (index >= 0 && index < this.conversations.length) {
+    //     this.activeConversation = this.conversations[index];
+    //   } else if (index === this.conversations.length) {
+    //     console.clear();
+    //     const name = await this.getInput("Enter conversation name: ");
+    //     this.activeConversation = { name, messages: [] };
+    //     this.conversations.push(this.activeConversation);
+    //   } else {
+    //     console.log("Invalid conversation number");
+    //   }
+    //   this.startChat();
+    // } else {
+    //   const message: Message = {
+    //     sender: "user",
+    //     text: input,
+    //     date: new Date().toUTCString(),
+    //   };
+    //   this.activeConversation!.messages.push(message);
+    //   this.saveHistory();
+    //   console.log(`You: ${input}`);
+    //   // TODO: Interact with GPT-3 here and display the response
+    //   const request: OpenAiRequest = {
+    //     model: "text-davinci-002",
+    //     prompt: "What is the meaning of life?",
+    //     max_tokens: 100,
+    //     temperature: 0.5,
+    //   };
+    //   const response = await generateText(request);
+    //   console.log(response);
+    //   this.startChat();
+    // }
   }
 }
 
